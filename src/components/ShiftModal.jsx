@@ -7,8 +7,8 @@ import ShiftBadge from "@/components/ShiftBadge";
 
 const EMPTY = {
   type: "day",
-  startTime: "07:00",
-  endTime: "19:00",
+  startTime: "07:30",
+  endTime: "19:30",
   unit: "",
   notes: "",
   calledInSick: false,
