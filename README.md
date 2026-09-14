@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# NurseShift
 
-## Getting Started
+Personal nurse shift scheduler: monthly calendar, agenda list, night-shift carryover, and coworker swap tracking. Built as a MERN-style app that deploys to **Vercel** with **MongoDB Atlas** — no Docker.
 
-First, run the development server:
+## What you can do
+
+- Register with a username, email, and password, then sign in
+- Click a calendar day to add a day, evening, or night shift
+- Night shifts stay on the start date and also mark the next morning
+- Switch to a week-grouped list for upcoming, night, or swapped shifts
+- Edit times, unit, and notes; delete a shift
+- Reschedule after a coworker swap and keep the original date plus who you swapped with
+- Mark a shift as called in sick (red, crossed out, hours not counted)
+
+## 1. Create a free MongoDB Atlas database
+
+I cannot create the Atlas account for you (it has to use your email), but the free cluster takes a few minutes:
+
+1. Open [mongodb.com/cloud/atlas/register](https://www.mongodb.com/cloud/atlas/register) and create a free account.
+2. Create a project, then a cluster. Choose the **M0 Free** tier and a region close to you (or close to `iad1` if you will host on Vercel’s default US East).
+3. Under **Database Access**, add a database user with a password you will keep. Do not use special characters that break URLs (`@`, `#`, `/`) unless you URL-encode them later.
+4. Under **Network Access**, click **Add IP Address** and choose **Allow Access from Anywhere** (`0.0.0.0/0`). Vercel does not have one fixed IP.
+5. Back on the cluster, click **Connect** → **Drivers**. Copy the URI. It looks like:
+
+   `mongodb+srv://USERNAME:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority`
+
+6. Put your password in place of `<password>` and add a database name before the query string:
+
+   `mongodb+srv://USERNAME:PASSWORD@cluster0.xxxxx.mongodb.net/nursing-scheduler?retryWrites=true&w=majority`
+
+## 2. Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+copy .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edit `.env.local`:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```
+MONGODB_URI=your-atlas-uri-from-above
+JWT_SECRET=a-long-random-string
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Generate a secret in PowerShell:
 
-## Learn More
+```powershell
+-join ((48..57 + 65..90 + 97..122) | Get-Random -Count 48 | ForEach-Object { [char]$_ })
+```
 
-To learn more about Next.js, take a look at the following resources:
+Then:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm install
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000), register, and add a few shifts.
 
-## Deploy on Vercel
+## 3. Deploy to Vercel (free)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push this folder to a GitHub repository.
+2. Sign in at [vercel.com](https://vercel.com) with GitHub and click **Add New… → Project**.
+3. Import the repo. Framework preset should be **Next.js**.
+4. Add the same environment variables as `.env.local`:
+   - `MONGODB_URI`
+   - `JWT_SECRET`
+5. Deploy. Vercel gives you a `*.vercel.app` URL.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Or from this folder after installing the Vercel CLI:
+
+```bash
+npx vercel
+```
+
+Add the two env vars in the Vercel project settings if the CLI does not prompt for them, then redeploy.
+
+## Stack
+
+This is a MERN variation aimed at free hosting: **MongoDB Atlas**, **Next.js** (React UI + Node API routes instead of a separate Express server). One project, one Vercel deploy, no Docker.
